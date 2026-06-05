@@ -1,5 +1,8 @@
 import streamlit as st
 from ui.components import show_chat_message, show_index_status, clear_chat_button, clear_index_button
+from rag.ingestion import load_and_chunk
+from rag.embeddings import build_index
+from rag.retriever import build_qa_chain, ask
 
 st.set_page_config(page_title="RAG Research Assistant", layout="wide", page_icon="📄")
 
@@ -16,11 +19,15 @@ st.title("📄 RAG Research Assistant")
 # ── Session state defaults ───────────────────────────────────────────────────
 if "messages" not in st.session_state:
     st.session_state.messages = []
+
 if "index_built" not in st.session_state:
     st.session_state.index_built = False
+
 if "uploaded_names" not in st.session_state:
     st.session_state.uploaded_names = []
 
+if "retriever" not in st.session_state:
+    st.session_state.retriever = None
 # ── Sidebar ──────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.header("📂 Knowledge Base")
@@ -34,14 +41,11 @@ with st.sidebar:
             st.error("Please upload at least one PDF first.")
         else:
             with st.spinner("Building index... this may take a moment."):
-                # ✅ Day 3: replace this block with:
-                # from rag.retriever import build_index
-                # build_index(uploaded_files)
-                import time
-                time.sleep(1)  # simulates indexing time — remove on Day 3
+                chunks = load_and_chunk(uploaded_files)
+                db = build_index(chunks)
+                st.session_state.retriever = build_qa_chain(db)
                 st.session_state.index_built = True
                 st.session_state.uploaded_names = [f.name for f in uploaded_files]
-
     show_index_status(st.session_state.index_built)
 
     # Show indexed file names
@@ -53,23 +57,6 @@ with st.sidebar:
     st.divider()
     clear_chat_button()
     clear_index_button()
-
-# ── Mock backend (remove on Day 3) ──────────────────────────────────────────
-def mock_ask(query: str) -> dict:
-    """Simulates what Person A's ask() will return. Swap on Day 3."""
-    names = st.session_state.uploaded_names or ["document.pdf"]
-    return {
-        "answer": (
-            f"This is a simulated answer for **'{query}'**.\n\n"
-            "On Day 3, this will be replaced by the real RAG pipeline using "
-            "LangChain + FAISS + Groq (Llama 3). The answer will be grounded "
-            "in your uploaded documents with inline citations."
-        ),
-        "sources": [
-            {"doc": names[0], "page": 2},
-            {"doc": names[-1], "page": 5},
-        ]
-    }
 
 # ── Main area ────────────────────────────────────────────────────────────────
 
@@ -110,7 +97,7 @@ if query := st.chat_input("Ask a question about your documents..."):
         # ✅ Day 3: swap this line:
         # from rag.retriever import ask
         # response = ask(query)
-        response = mock_ask(query)
+        response = ask(query, st.session_state.retriever)
 
     # Guard: empty answer
     if not response.get("answer"):

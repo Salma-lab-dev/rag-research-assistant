@@ -1,13 +1,14 @@
 import streamlit as st
 
 def show_chat_message(role: str, content: str, sources: list = None):
-    """Display a single chat message with optional source citations."""
     with st.chat_message(role):
         st.write(content)
         if sources:
             with st.expander("📄 Sources"):
                 for s in sources:
-                    st.markdown(f"- **{s['doc']}** — page {s['page']}")
+                    st.markdown(f"**{s['source']}** — page {s['page']}")
+                    if s.get("snippet"):
+                        st.caption(s["snippet"])
 
 def show_index_status(built: bool):
     """Show whether the index is ready or not."""
