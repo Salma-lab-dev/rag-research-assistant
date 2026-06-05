@@ -14,7 +14,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("📄 RAG Research Assistant")
+st.title(" RAG Research Assistant")
 
 # ── Session state defaults ───────────────────────────────────────────────────
 if "messages" not in st.session_state:
@@ -30,7 +30,7 @@ if "retriever" not in st.session_state:
     st.session_state.retriever = None
 # ── Sidebar ──────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.header("📂 Knowledge Base")
+    st.header(" Knowledge Base")
 
     uploaded_files = st.file_uploader(
         "Upload PDFs", type="pdf", accept_multiple_files=True
@@ -52,7 +52,7 @@ with st.sidebar:
     if st.session_state.uploaded_names:
         st.markdown("**Indexed files:**")
         for name in st.session_state.uploaded_names:
-            st.markdown(f"- 📄 {name}")
+            st.markdown(f"-  {name}")
 
     st.divider()
     clear_chat_button()
@@ -63,10 +63,10 @@ with st.sidebar:
 # Welcome screen — only when no messages yet
 if not st.session_state.messages:
     st.markdown("""
-    ### 👋 Welcome!
+    ###  Welcome!
     **Get started in 3 steps:**
     1. Upload one or more PDFs in the sidebar
-    2. Click **⚡ Build Index**
+    2. Click ** Build Index**
     3. Ask any question about your documents
     ---
     """)
@@ -85,7 +85,7 @@ if query := st.chat_input("Ask a question about your documents..."):
 
     # Guard: index not built
     if not st.session_state.index_built:
-        st.warning("⚠️ Please upload PDFs and click **Build Index** first.")
+        st.warning(" Please upload PDFs and click **Build Index** first.")
         st.stop()
 
     # Show user message
@@ -94,7 +94,7 @@ if query := st.chat_input("Ask a question about your documents..."):
 
     # Get answer
     with st.spinner("Thinking..."):
-        # ✅ Day 3: swap this line:
+        #  Day 3: swap this line:
         # from rag.retriever import ask
         # response = ask(query)
         response = ask(query, st.session_state.retriever)
