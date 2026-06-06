@@ -53,7 +53,7 @@ rag-research-assistant/
 
 ---
 
-## 🚀 Run locally
+## Run locally
 ```bash
 git clone https://github.com/Salma-lab-dev/rag-research-assistant
 cd rag-research-assistant
@@ -67,13 +67,13 @@ streamlit run app.py
 ---
 
 ## 📊 Eval results
-_To be added by Person A — Day 5_
-
----
+============================================================
+ Hit Rate : 93.3%  (14/15)
+ Target reached (≥ 85%) — retrieval quality is good!
+ Hit Rate : 93.3%  (14/15)
+ Target reached (≥ 85%) — retrieval quality is good!
+============================================================
 
 ## 👥 Team
-| Person | Role |
-|---|---|
-| Person B (Salma) | Streamlit UI · Integration · Deployment |
-| Person A | RAG pipeline · Embeddings · Retrieval · Evaluation |
+Hajar EL HALLAGUE & Salma KAMAL
 ```
