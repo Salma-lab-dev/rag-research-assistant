@@ -1,7 +1,8 @@
 
 # 📄 RAG Research Assistant
 
-A conversational research assistant that lets you upload PDF documents and ask questions about them. Powered by LangChain, FAISS, and Groq (Llama 3).
+A conversational research assistant that lets you upload PDF documents and ask questions about them. Powered by LangChain, FAISS, local sentence-transformers embeddings, and Groq API (Llama 3.3 70B).
+
 
 > Built as part of the ENSIAS 2IA — Apprentissage Neuronal Profond · NLP Project
 
