@@ -26,15 +26,15 @@ A conversational research assistant that lets you upload PDF documents and ask q
 ## 🗂️ Project structure
 ```
 rag-research-assistant/
-├── app.py                  → Streamlit entry point (Person B)
+├── app.py                  → Streamlit entry point
 ├── ui/
-│   └── components.py       → Reusable UI widgets (Person B)
+│   └── components.py       → Reusable UI widgets 
 ├── rag/
-│   ├── ingestion.py        → PDF loading + chunking (Person A)
-│   ├── embeddings.py       → Embedding + FAISS index (Person A)
-│   ├── retriever.py        → Standard RAG retrieval (Person A)
-│   ├── crage.py           → Corrective RAG implementation (Person A)
-│   └── eval.py             → Benchmark evaluation (Person A)
+│   ├── ingestion.py        → PDF loading + chunking
+│   ├── embeddings.py       → Embedding + FAISS index 
+│   ├── retriever.py        → Standard RAG retrieval 
+│   ├── crage.py           → Corrective RAG implementation 
+│   └── eval.py             → Benchmark evaluation 
 ├── requirements.txt
 └── README.md
 ```
