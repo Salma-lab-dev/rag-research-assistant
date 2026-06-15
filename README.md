@@ -1,1 +1,1 @@
-# rag-research-assistant
+# rag-project
