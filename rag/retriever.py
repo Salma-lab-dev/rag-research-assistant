@@ -75,3 +75,11 @@ def ask(query: str, retriever) -> dict:
         })
 
     return {"answer": answer, "sources": sources}
+def ask_llm_only(query: str) -> dict:
+    """Call the LLM with no retrieval — used for RAG vs LLM comparison."""
+    llm = get_llm()
+    response = llm.invoke(query)
+    return {
+        "answer": response.content,
+        "sources": []
+    }

@@ -2,7 +2,7 @@ import streamlit as st
 from ui.components import show_chat_message, show_index_status, clear_chat_button, clear_index_button
 from rag.ingestion import load_and_chunk
 from rag.embeddings import build_index
-from rag.retriever import build_qa_chain, ask
+from rag.retriever import build_qa_chain, ask, ask_llm_only
 
 st.set_page_config(page_title="RAG Research Assistant", layout="wide", page_icon="📄")
 
@@ -31,7 +31,13 @@ if "retriever" not in st.session_state:
 # ── Sidebar ──────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.header(" Knowledge Base")
-
+    st.markdown("### Answer mode")
+    mode = st.radio(
+        "mode",
+        ["RAG — document grounded", "LLM only — no retrieval", "Side by side"],
+        label_visibility="collapsed"
+    )
+    st.divider()
     uploaded_files = st.file_uploader(
         "Upload PDFs", type="pdf", accept_multiple_files=True
     )
@@ -84,30 +90,62 @@ if query := st.chat_input("Ask a question about your documents..."):
         st.stop()
 
     # Guard: index not built
-    if not st.session_state.index_built:
+  # Guard: index not built (skip for LLM-only mode)
+    if not st.session_state.index_built and mode != "LLM only — no retrieval":
         st.warning(" Please upload PDFs and click **Build Index** first.")
         st.stop()
-
     # Show user message
     show_chat_message("user", query)
     st.session_state.messages.append({"role": "user", "content": query, "sources": None})
 
     # Get answer
     with st.spinner("Thinking..."):
-        #  Day 3: swap this line:
-        # from rag.retriever import ask
-        # response = ask(query)
-        response = ask(query, st.session_state.retriever)
 
-    # Guard: empty answer
-    if not response.get("answer"):
-        st.error("No answer returned. Try rephrasing your question.")
-        st.stop()
+        if mode == "RAG — document grounded":
+            response = ask(query, st.session_state.retriever)
+            if not response.get("answer"):
+                st.error("No answer returned. Try rephrasing your question.")
+                st.stop()
+            show_chat_message("assistant", response["answer"], response.get("sources"))
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": response["answer"],
+                "sources": response.get("sources", [])
+            })
 
-    # Show assistant message
-    show_chat_message("assistant", response["answer"], response.get("sources"))
-    st.session_state.messages.append({
-        "role": "assistant",
-        "content": response["answer"],
-        "sources": response.get("sources", [])
-    })
+        elif mode == "LLM only — no retrieval":
+            response = ask_llm_only(query)
+            show_chat_message("assistant", response["answer"], None)
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": response["answer"],
+                "sources": []
+            })
+
+        elif mode == "Side by side":
+            rag_response = ask(query, st.session_state.retriever)
+            llm_response = ask_llm_only(query)
+
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("**RAG answer**")
+                st.markdown(rag_response["answer"])
+                if rag_response.get("sources"):
+                    with st.expander("Sources"):
+                        for s in rag_response["sources"]:
+                            st.caption(f"{s['source']} — page {s['page']}")
+
+            with col2:
+                st.markdown("**LLM only answer**")
+                st.markdown(llm_response["answer"])
+                st.caption("No retrieval — answer from training data only")
+
+            combined = (
+                f"**RAG:** {rag_response['answer']}\n\n"
+                f"**LLM only:** {llm_response['answer']}"
+            )
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": combined,
+                "sources": rag_response.get("sources", [])
+            })
