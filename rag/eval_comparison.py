@@ -1,4 +1,4 @@
-# rag/eval.py
+# rag/eval_comparison.py - Compare Standard RAG vs CRAG performance
 import csv
 import os
 import ssl
@@ -96,10 +96,10 @@ class FakePDF:
             return f.read()
 
 
-# ── Main eval function ────────────────────────────────────────────
+# ── Comparison eval function ───────────────────────────────────────
 
-def run_eval(test_files):
-    print("=" * 60)
+def run_comparison_eval(test_files):
+    print("=" * 70)
     print(" Loading and indexing test files...")
     chunks = load_and_chunk(test_files)
     print(f"   → {len(chunks)} chunks created from {len(test_files)} file(s)")
@@ -107,51 +107,87 @@ def run_eval(test_files):
     db = build_index(chunks)
     retriever = build_qa_chain(db)
     print("   → FAISS index ready\n")
-    print("=" * 60)
-    print(" Running evaluation...\n")
+    print("=" * 70)
+    print(" Running RAG vs CRAG comparison...\n")
 
     results = []
-    hits = 0
+    rag_hits = 0
+    crage_hits = 0
+    crage_relevance_scores = []
+    crage_refinement_count = 0
 
     for i, item in enumerate(TEST_QA, 1):
-        response = ask(item["question"], retriever)
-        hit = keyword_hit(response["answer"], item["expected_keywords"])
-        hits += int(hit)
+        # Run standard RAG
+        rag_response = ask(item["question"], retriever)
+        rag_hit = keyword_hit(rag_response["answer"], item["expected_keywords"])
+        rag_hits += int(rag_hit)
 
-        icon = "done" if hit else "error"
-        print(f"{icon} [{i:02d}] {item['question'][:65]}")
+        # Run CRAG
+        crage_response = ask_crage(item["question"], retriever)
+        crage_hit = keyword_hit(crage_response["answer"], item["expected_keywords"])
+        crage_hits += int(crage_hit)
+        
+        # Track CRAG metadata
+        relevance_score = crage_response["crage_metadata"]["relevance_score"]
+        crage_relevance_scores.append(relevance_score)
+        if crage_response["crage_metadata"]["refinement_note"]:
+            crage_refinement_count += 1
+
+        # Display comparison
+        rag_icon = "✓" if rag_hit else "✗"
+        crage_icon = "✓" if crage_hit else "✗"
+        
+        print(f"[{i:02d}] {item['question'][:60]}")
+        print(f"     RAG:  {rag_icon} | CRAG: {crage_icon} | Relevance: {relevance_score:.2f}")
+        
+        if crage_response["crage_metadata"]["refinement_note"]:
+            print(f"     → {crage_response['crage_metadata']['refinement_note']}")
+        print()
 
         results.append({
             "question": item["question"],
-            "answer": response["answer"][:300],
-            "hit": "YES" if hit else "NO",
-            "sources": ", ".join(
-                f"{s['source']} p.{s['page']}" for s in response["sources"]
-            )
+            "rag_answer": rag_response["answer"][:200],
+            "rag_hit": "YES" if rag_hit else "NO",
+            "crage_answer": crage_response["answer"][:200],
+            "crage_hit": "YES" if crage_hit else "NO",
+            "relevance_score": relevance_score,
+            "refinement_used": "YES" if crage_response["crage_metadata"]["refinement_note"] else "NO"
         })
 
     # ── Summary ───────────────────────────────────────────────────
-    hit_rate = hits / len(TEST_QA) * 100
-    print("\n" + "=" * 60)
-    print(f" Hit Rate : {hit_rate:.1f}%  ({hits}/{len(TEST_QA)})")
-
-    if hit_rate >= 85:
-        print(" Target reached (≥ 85%) — retrieval quality is good!")
-    else:
-        print("  Below 85% — consider enabling EnsembleRetriever.")
+    rag_hit_rate = rag_hits / len(TEST_QA) * 100
+    crage_hit_rate = crage_hits / len(TEST_QA) * 100
+    avg_relevance = sum(crage_relevance_scores) / len(crage_relevance_scores)
+    
+    print("=" * 70)
+    print(" COMPARISON RESULTS")
+    print("=" * 70)
+    print(f" Standard RAG Hit Rate : {rag_hit_rate:.1f}%  ({rag_hits}/{len(TEST_QA)})")
+    print(f" CRAG Hit Rate        : {crage_hit_rate:.1f}%  ({crage_hits}/{len(TEST_QA)})")
+    print(f" Improvement           : {crage_hit_rate - rag_hit_rate:+.1f}%")
+    print()
+    print(f" CRAG Average Relevance Score : {avg_relevance:.2f}/1.0")
+    print(f" CRAG Refinement Triggered   : {crage_refinement_count}/{len(TEST_QA)} times")
+    print("=" * 70)
 
     # ── Save CSV ──────────────────────────────────────────────────
-    csv_path = "eval_results.csv"
+    csv_path = "eval_comparison_results.csv"
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
-            f, fieldnames=["question", "answer", "hit", "sources"]
+            f, fieldnames=["question", "rag_answer", "rag_hit", "crage_answer", "crage_hit", "relevance_score", "refinement_used"]
         )
         writer.writeheader()
         writer.writerows(results)
 
     print(f" Results saved to {csv_path}")
-    print("=" * 60)
-    return hit_rate
+    print("=" * 70)
+    
+    return {
+        "rag_hit_rate": rag_hit_rate,
+        "crage_hit_rate": crage_hit_rate,
+        "avg_relevance": avg_relevance,
+        "refinement_count": crage_refinement_count
+    }
 
 
 # ── Entry point ───────────────────────────────────────────────────
@@ -172,4 +208,4 @@ if __name__ == "__main__":
         exit(1)
 
     test_files = [FakePDF(p) for p in TEST_PDF_PATHS]
-    run_eval(test_files)
+    run_comparison_eval(test_files)
