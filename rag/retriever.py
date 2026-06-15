@@ -75,10 +75,27 @@ def ask(query: str, retriever) -> dict:
         })
 
     return {"answer": answer, "sources": sources}
-def ask_llm_only(query: str) -> dict:
-    """Call the LLM with no retrieval — used for RAG vs LLM comparison."""
+def ask_llm_only(query: str, docs=None) -> dict:
+    """Call the LLM with full document context but no retrieval — for fair comparison."""
     llm = get_llm()
-    response = llm.invoke(query)
+    
+    if docs:
+        # join ALL chunks — no similarity search, just raw dump
+        full_context = "\n\n".join(doc.page_content for doc in docs)
+        prompt = f"""You are a helpful assistant. Answer the question using the document below.
+Do NOT cite specific pages or sources.
+
+Document:
+{full_context[:6000]}
+
+Question: {query}
+Answer:"""
+    else:
+        prompt = f"""You are a helpful assistant. Answer the following question using your general knowledge.
+Question: {query}
+Answer:"""
+
+    response = llm.invoke(prompt)
     return {
         "answer": response.content,
         "sources": []

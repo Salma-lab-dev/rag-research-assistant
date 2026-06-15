@@ -114,7 +114,9 @@ if query := st.chat_input("Ask a question about your documents..."):
             })
 
         elif mode == "LLM only — no retrieval":
-            response = ask_llm_only(query)
+            # get all docs from index but skip similarity search
+            all_docs = st.session_state.retriever.invoke(query) if st.session_state.index_built else None
+            response = ask_llm_only(query, docs=all_docs)
             show_chat_message("assistant", response["answer"], None)
             st.session_state.messages.append({
                 "role": "assistant",
@@ -124,7 +126,10 @@ if query := st.chat_input("Ask a question about your documents..."):
 
         elif mode == "Side by side":
             rag_response = ask(query, st.session_state.retriever)
-            llm_response = ask_llm_only(query)
+            
+            # pass the same retrieved docs to LLM so comparison is fair
+            all_docs = st.session_state.retriever.invoke(query)
+            llm_response = ask_llm_only(query, docs=all_docs)
 
             col1, col2 = st.columns(2)
             with col1:
@@ -138,7 +143,7 @@ if query := st.chat_input("Ask a question about your documents..."):
             with col2:
                 st.markdown("**LLM only answer**")
                 st.markdown(llm_response["answer"])
-                st.caption("No retrieval — answer from training data only")
+                st.caption("Same document, no retrieval — no citations")
 
             combined = (
                 f"**RAG:** {rag_response['answer']}\n\n"
