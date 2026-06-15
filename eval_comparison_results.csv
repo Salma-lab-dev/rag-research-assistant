@@ -1,0 +1,33 @@
+question,rag_answer,rag_hit,crage_answer,crage_hit,relevance_score,refinement_used
+What is federated learning?,I don't have enough information in the uploaded documents.,NO,"Federated learning is a machine learning approach that involves training models across multiple sites or devices, rather than relying on a centralized dataset (source: filename.pdf, page 1). It is cha",YES,0.95,NO
+What is horizontal federated learning?,Horizontal Federated Learning (HFL) is a type of federated learning where the participating clients share the same type of data features while possessing different sets of data samples (source: filena,YES,Horizontal Federated Learning (HFL) is a type of federated learning where participating clients share the same type of data features but possess different sets of data samples (source: federated_learn,YES,0.7,NO
+What is vertical federated learning?,"Vertical Federated Learning (VFL) is a type of federated learning where the datasets of the engaged nodes have a common sample space, but with different data features, resulting in a combined dataset ",YES,"Vertical Federated Learning (VFL) is a type of federated learning where the datasets of the engaged nodes have a common sample space, but with different data features (source: federated_learning.pdf, ",YES,0.4,YES
+What is the FedAvg algorithm?,"The FedAvg algorithm performs straightforward averaging of all the model weights (source: filename.pdf, page 1).",YES,"The FedAvg algorithm is a widely-recognized method used in federated learning (FL) for aggregating local models from clients to generate a global model, which performs straightforward averaging of all",YES,0.6,NO
+What is the role of the central server in federated learning?,"The central server is responsible for learning coordination, and client devices interact only with the server to send and receive model updates (Federated Learning Survey, page 15). Additionally, the ",YES,"The role of the central server in federated learning is to coordinate learning, decide task application and model parameters, initiate global model gradients, broadcast the initial global model, and m",YES,0.85,NO
+What are the privacy benefits of federated learning?,Federated learning ensures the data privacy of locally held data at each site by allowing participating nodes to collaboratively train a robust AI model without uploading it to a remote server (source,YES,"The privacy benefits of federated learning include: 
+1. **Data privacy protection**: Federated learning allows participating nodes to collaboratively train a robust AI model without uploading their lo",YES,0.85,NO
+How is federated learning applied to medical imaging?,"Federated learning is applied to medical imaging through a communication-efficient approach for multi-institutional medical image classification (Federated Learning Survey, page 61). This is further i",YES,"Federated learning is applied to medical imaging in several ways, including **Horizontal Federated Learning (HFL)**, where different hospitals collaborate to develop an AI model for predicting disease",YES,0.2,YES
+What is a CNN?,"I don't have enough information in the uploaded documents to provide a definition of CNN. However, I can tell you that CNN stands for Convolutional Neural Network (source: filename.pdf, no specific pa",YES,"A CNN (Convolutional Neural Network) is a type of neural network architecture tailored for computer vision tasks, such as image classification (source: filename.pdf, page 3). It is particularly useful",YES,0.2,YES
+What is the difference between IID and non-IID data?,"The difference between IID (Independent and Identically Distributed) and non-IID data is that IID data assumes the data to be independent and identically distributed, whereas non-IID data refers to th",YES,"The difference between IID (Independent and Identically Distributed) and non-IID data is that IID data assumes that the data is independent and identically distributed, whereas non-IID data refers to ",YES,0.6,NO
+What happens during a local training round?,"During a local training round, each node independently trains a model after receiving the global model from the parameter server (Federated Learning Survey, page 15).",YES,"During a local training round in Federated Learning, the following steps occur: 
+1. The server broadcasts the initial global model to the chosen clients (source: filename.pdf, page 1).
+2. Each client ",YES,0.2,YES
+What are the main challenges of federated learning?,"The main challenges of federated learning include heterogeneity, personalization concerns, security, and privacy concerns, as well as scalability (source: filename.pdf, page 3 and page 7), and optimiz",YES,"The main challenges of federated learning are: 
+1. **Heterogeneity**, 
+2. **Scalability**, 
+3. **Security and Privacy**, 
+4. **Personalization**, 
+5. **Optimization**, and 
+6. **Robustness** (source: ",YES,0.85,NO
+What metrics are used to evaluate the federated model?,"Metrics-based Aggregation Methods use specific criteria such as trust, reliability, and similarity to evaluate the quality of local updates (Federated Learning Survey, page 17).",YES,"The metrics used to evaluate the federated model are: 
+1. Trust, 
+2. Reliability, 
+3. Similarity, 
+4. Convergence speed, 
+5. Accuracy, 
+6. Communication cost, and 
+7. Privacy (source: filename.pdf, pa",YES,0.7,NO
+What is model aggregation in federated learning?,Model aggregation in federated learning refers to the process of combining local models' updates from different clients into a global model that can generalize well to new data (Federated Learning Sur,YES,"Model aggregation in federated learning is the process of combining local models' updates from different clients into a global model, using various techniques and synchronization modes to address the ",YES,0.92,NO
+What dataset is used in the practical work?,"CIFAR-10, CIFAR-100, and FashionMNIST datasets are used in the practical work (source: filename.pdf, page 1).",YES,I don't have enough information in the uploaded documents.,NO,0.25,YES
+What is the difference between federated learning and traditional machine learning?,"The main difference between federated learning and traditional machine learning is the distributed nature of federated learning, where data and computational workload are distributed across multiple n",YES,"The main differences between Federated Learning (FL) and Traditional Machine Learning (ML) are: 
+1. **Data Distribution**: FL distributes data and computational workload across multiple nodes, whereas",YES,0.85,NO
